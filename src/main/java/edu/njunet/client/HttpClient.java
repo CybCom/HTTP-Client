@@ -13,8 +13,10 @@ import java.nio.charset.StandardCharsets;
 public class HttpClient {
     private final String hostname;
     private final int port;
-    private final ClientJsonReader clientJsonReader;
+
     private Socket client;
+
+    private final ClientJsonReader clientJsonReader;
 
     HttpClient(String hostname, int port) {
         this.hostname = hostname;
@@ -26,6 +28,17 @@ public class HttpClient {
             System.out.println("远程主机地址：" + client.getRemoteSocketAddress());
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    /***
+     * 关闭服务器的socket资源
+     */
+    public void close() {
+        try {
+            client.close();
+        } catch (IOException ex) {
+            ex.printStackTrace();
         }
     }
 
@@ -46,11 +59,18 @@ public class HttpClient {
             }
             Response response = Response.parseResponse(inFromServer);
             handleResponse(response, url);
-            System.out.println(response);
+//            System.out.println(response);
 
-            client.close();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        } catch (IOException ex) {
+            try {
+                client = new Socket(hostname, port);
+                System.out.println("超时，重新建立连接！");
+                System.out.println("连接到主机：" + hostname + " ,端口号：" + port);
+                System.out.println("远程主机地址：" + client.getRemoteSocketAddress());
+                get(url);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -65,17 +85,26 @@ public class HttpClient {
         try {
             Request request = Request.buildRequest(url);
             switchToPost(request, user_name, password);
-            System.out.print(request);
+            System.out.println(request);
             OutputStream outToServer = client.getOutputStream();
             outToServer.write(request.toString().getBytes(StandardCharsets.UTF_8));
 
             InputStream inFromServer = client.getInputStream();
+            while (inFromServer.available() == 0) { //服务器给响应了才继续
+            }
             Response response = Response.parseResponse(inFromServer);
-            System.out.print(response);
+//            System.out.println(response);
 
-            client.close();
         } catch (IOException ex) {
-            ex.printStackTrace();
+            try {
+                client = new Socket(hostname, port);
+                System.out.println("超时，重新建立连接！");
+                System.out.println("连接到主机：" + hostname + " ,端口号：" + port);
+                System.out.println("远程主机地址：" + client.getRemoteSocketAddress());
+                post(url, user_name, password);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -87,7 +116,7 @@ public class HttpClient {
      */
     private void switchToPost(Request request, String user_name, String password) {
         request.setMethod("POST");
-        String message = "User_name:" + user_name + ",Password:" + password;
+        String message = "User_name:"+user_name+",Password:"+password;
         request.setMessage(message.getBytes());
     }
 
@@ -108,3 +137,4 @@ public class HttpClient {
     }
 
 }
+

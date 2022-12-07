@@ -12,6 +12,7 @@ import edu.njunet.utils.JsonReader.JavaBean.ClientDataBean;
 import edu.njunet.utils.JsonReader.JavaBean.ModifiedBean;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
@@ -110,7 +111,8 @@ public class ClientJsonReader {
                     }
                 }
                 assert resource_path != null;
-                InputStream resource = HttpClient.class.getResourceAsStream(resource_path);
+                System.out.println(resource_path);
+                InputStream resource = new FileInputStream(resource_path);
                 assert resource != null;
                 int remainingByte = resource.available();
                 byte[] buffer = new byte[remainingByte];
