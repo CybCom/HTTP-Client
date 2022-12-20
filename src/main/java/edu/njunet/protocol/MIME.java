@@ -1,4 +1,4 @@
-package edu.njunet.utils;
+package edu.njunet.protocol;
 
 import java.util.HashMap;
 

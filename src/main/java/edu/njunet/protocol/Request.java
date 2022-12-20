@@ -1,8 +1,7 @@
-package edu.njunet.utils.message;
+package edu.njunet.protocol;
 
 
 import edu.njunet.utils.DefaultRequestHead;
-import edu.njunet.utils.MIME;
 
 import java.io.IOException;
 import java.io.InputStream;

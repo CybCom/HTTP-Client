@@ -1,14 +1,13 @@
 package edu.njunet.client;
 
 import edu.njunet.utils.JsonReader.ClientJsonReader;
-import edu.njunet.utils.message.Request;
-import edu.njunet.utils.message.Response;
+import edu.njunet.protocol.Request;
+import edu.njunet.protocol.Response;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
-import java.nio.charset.StandardCharsets;
 
 public class HttpClient {
     private final String hostname;
@@ -18,7 +17,7 @@ public class HttpClient {
 
     private final ClientJsonReader clientJsonReader;
 
-    HttpClient(String hostname, int port) {
+    public HttpClient(String hostname, int port) {
         this.hostname = hostname;
         this.port = port;
         clientJsonReader = new ClientJsonReader();
@@ -59,7 +58,7 @@ public class HttpClient {
             }
             Response response = Response.parseResponse(inFromServer);
             handleResponse(response, url);
-//            System.out.println(response);
+            System.out.println(response);
 
         } catch (IOException ex) {
             try {
@@ -75,25 +74,25 @@ public class HttpClient {
     }
 
     /***
-     * 发送post请求，主要用于login，若用户不存在，服务器自动注册
-     * @param url 服务器login表的url
-     * @param user_name 用户名
-     * @param password 密码
+     * 发送post请求，主要用于login，register
+     * @param url
+     * @param data 向服务器发送的数据
      */
 
-    public void post(String url, String user_name, String password) {
+    public void post(String url, byte[] data) {
         try {
             Request request = Request.buildRequest(url);
-            switchToPost(request, user_name, password);
+            switchToPost(request, data);
             System.out.println(request);
+            System.out.println();
             OutputStream outToServer = client.getOutputStream();
-            outToServer.write(request.toString().getBytes(StandardCharsets.UTF_8));
+            request.send(outToServer);
 
             InputStream inFromServer = client.getInputStream();
             while (inFromServer.available() == 0) { //服务器给响应了才继续
             }
             Response response = Response.parseResponse(inFromServer);
-//            System.out.println(response);
+            System.out.println(response);
 
         } catch (IOException ex) {
             try {
@@ -101,23 +100,32 @@ public class HttpClient {
                 System.out.println("超时，重新建立连接！");
                 System.out.println("连接到主机：" + hostname + " ,端口号：" + port);
                 System.out.println("远程主机地址：" + client.getRemoteSocketAddress());
-                post(url, user_name, password);
+                post(url, data);
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
     }
 
+    public void register(String user_name, String password) {
+        String content = "userName:" + user_name + "\r\n" + "password:" + password;
+        post("/register", content.getBytes());
+    }
+
+    public void login(String user_name, String password) {
+        String content = "userName:" + user_name + "\r\n" + "password:" + password;
+        post("/login", content.getBytes());
+    }
+
     /***
      * 将默认请求报文设为post请求
      * @param request 生成的默认请求报文，为get请求
-     * @param user_name 用户名
-     * @param password 密码
+     * @param data 向服务器发送的数据
      */
-    private void switchToPost(Request request, String user_name, String password) {
+    private void switchToPost(Request request, byte[] data) {
         request.setMethod("POST");
-        String message = "User_name:"+user_name+",Password:"+password;
-        request.setMessage(message.getBytes());
+        request.setMessage(data);
+        request.getHeader().put("Content-Length", data == null ? "0" : String.valueOf(data.length));
     }
 
     /***

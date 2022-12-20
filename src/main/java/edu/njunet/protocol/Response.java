@@ -1,8 +1,7 @@
-package edu.njunet.utils.message;
+package edu.njunet.protocol;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
@@ -120,9 +119,9 @@ public class Response {
             sb.append(tmp);
         }
         sb.append("\r\n");
-        if (message != null) {
-            sb.append(text());
-        }
+//        if (message != null) {
+//            sb.append(text());
+//        }
 
         return sb.toString();
     }

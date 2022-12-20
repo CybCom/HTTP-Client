@@ -2,9 +2,8 @@ package edu.njunet.utils.JsonReader;
 
 import edu.njunet.utils.JsonReader.JavaBean.ClientResourceBean;
 import edu.njunet.utils.SystemTime;
-import edu.njunet.client.HttpClient;
-import edu.njunet.utils.message.Request;
-import edu.njunet.utils.message.Response;
+import edu.njunet.protocol.Request;
+import edu.njunet.protocol.Response;
 
 import cn.hutool.core.io.FileUtil;
 import com.alibaba.fastjson.JSON;
@@ -75,7 +74,7 @@ public class ClientJsonReader {
                 List<ClientDataBean> resourceList = resourceBean.getResourceList();
                 for (ClientDataBean clientDataBean : resourceList) {
                     if (url.equals(clientDataBean.getUrl())) {
-                        clientDataBean.getModifiedBean().setLast_modified(SystemTime.systemTime()); //TODO
+                        clientDataBean.getModifiedBean().setLast_modified(SystemTime.systemTime());
                         FileUtil.writeBytes(response.content(), new File(clientDataBean.getPath()));
                         return 1;
                     }
@@ -91,7 +90,7 @@ public class ClientJsonReader {
                 for (ClientDataBean clientDataBean : resourceList) {
                     if (url.equals(clientDataBean.getUrl())) {
                         clientDataBean.setUrl(new_url);
-                        clientDataBean.getModifiedBean().setLast_modified(SystemTime.systemTime()); //TODO
+                        clientDataBean.getModifiedBean().setLast_modified(SystemTime.systemTime());
                         FileUtil.writeBytes(response.content(), new File(clientDataBean.getPath()));
                         return 1;
                     }
@@ -106,14 +105,13 @@ public class ClientJsonReader {
                 List<ClientDataBean> resourceList = resourceBean.getResourceList();
                 for (ClientDataBean clientDataBean : resourceList) {
                     if (url.equals(clientDataBean.getUrl())) {
-                        clientDataBean.getModifiedBean().setLast_modified(SystemTime.systemTime()); //TODO
+                        clientDataBean.getModifiedBean().setLast_modified(SystemTime.systemTime());
                         resource_path = clientDataBean.getPath();
                     }
                 }
                 assert resource_path != null;
                 System.out.println(resource_path);
                 InputStream resource = new FileInputStream(resource_path);
-                assert resource != null;
                 int remainingByte = resource.available();
                 byte[] buffer = new byte[remainingByte];
                 int i = 0;
@@ -136,7 +134,7 @@ public class ClientJsonReader {
     private void addOneDataBean(String url) {
         ClientDataBean clientDataBean = new ClientDataBean();
         ModifiedBean modifiedBean = new ModifiedBean();
-        modifiedBean.setLast_modified(SystemTime.systemTime());  //TODO
+        modifiedBean.setLast_modified(SystemTime.systemTime());
         modifiedBean.setEtag("1");
         clientDataBean.setUrl(url);
         clientDataBean.setModifiedBean(modifiedBean);
