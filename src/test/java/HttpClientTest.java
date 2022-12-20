@@ -26,6 +26,16 @@ public class HttpClientTest {
         //405
 //        client1.post("/test.html", null);
 
+        //长连接
+        client1.get("/test.html");
+        client1.get("/Dark_seeks_light.mp3");
+        try {
+            Thread.sleep(35000);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        client1.get("/Devil_Kid.flac");
+
         //login
 //        client1.login("张三", "123456789");
 
